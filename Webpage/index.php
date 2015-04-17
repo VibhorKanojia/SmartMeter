@@ -3,7 +3,8 @@ $servername = "127.0.0.1";
 $username = "vibhor";
 $password = "vibhor";
 $dbname = "smartmeter";
-$cur_powert = 0;
+$cur_power = 0;
+$cur_threshold = 0;
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -20,6 +21,7 @@ if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
         $cur_power = $row["power"];
+        $cur_threshold = $row["threshold"];
     }
 } else {
     echo "0 results";
@@ -42,12 +44,7 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
-
-$conn->close();
-
-
-
-
+  
 ?> 
 
 
@@ -57,10 +54,22 @@ $conn->close();
 	<title>HTML5 Sortable jQuery Plugin</title>
 	<link href="css/style.css" rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="js/jquery.sortable.js"></script>
 	<script>
+
+	$(document).ready(function(){
+		var intervalID = setInterval(optimize, 5000);
+
+	});
+
 		function optimize(){
+			console.log("start");
 			var cur_power = document.getElementById("cur_power").innerHTML;
 			var threshold_power = document.getElementById("voltage").value;
+			if (Number(threshold_power) == 0){
+				threshold_power = Number(<?php echo $cur_threshold; ?>);
+			}
 			var statusArray = <? echo json_encode($statusArray); ?>;
 			var powerArray = <? echo json_encode($powerArray); ?>;
 			console.log(powerArray);
@@ -85,14 +94,31 @@ $conn->close();
 			console.log("**********");
 			console.log(new_statusArray);
 			console.log(new_power);
+			console.log(new_statusArray.join(','));
+
+			var stringed =  new_statusArray.join(',');
+
+			document.getElementById("cur_power").innerHTML = new_power;
+			$.ajax({
+			    url: 'updateDatabase.php', // url is empty because I'm working in the same file
+			    data: {
+			    	'new_power': new_power,
+			    	'new_threshold':threshold_power,
+			    	'new_statusArray': stringed
+				},
+			    type: 'post',
+			});
 
 		};	
+
+		
 	</script>
 
 
 </head>
 
 <body>
+
 	<header>
 		<h1>Embedded Systems Lab</h1>
 	</header>
@@ -120,8 +146,7 @@ $conn->close();
   			<input type="submit" value="Submit" onclick="optimize()"> 
 	</section>
 
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script src="js/jquery.sortable.js"></script>
+	
 	<script>
 		$(function() {
 			$('.sortable').sortable();
