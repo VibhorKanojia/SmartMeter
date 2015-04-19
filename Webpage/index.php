@@ -59,9 +59,18 @@ if ($result->num_rows > 0) {
 	<script>
 
 	$(document).ready(function(){
-		var intervalID = setInterval(optimize, 5000);
+		var intervalID = setInterval(optimize, 60000);
 
 	});
+
+	function sleep(milliseconds) {
+	  var start = new Date().getTime();
+	  for (var i = 0; i < 1e7; i++) {
+	    if ((new Date().getTime() - start) > milliseconds){
+	      break;
+	    }
+	  }
+	}
 
 		function optimize(){
 			console.log("start");
@@ -72,7 +81,7 @@ if ($result->num_rows > 0) {
 			}
 			var statusArray = <? echo json_encode($statusArray); ?>;
 			var powerArray = <? echo json_encode($powerArray); ?>;
-			console.log(powerArray);
+			//console.log(powerArray);
 			console.log(cur_power);
 			console.log(threshold_power);
 			console.log(statusArray);
@@ -80,35 +89,66 @@ if ($result->num_rows > 0) {
 			var new_power = 0;
 			var index = 0;
 			var new_statusArray = [];
-			while (index < statusArray.length){
-				if (Number(new_power) + Number(powerArray[index]) > Number(threshold_power)){
-					new_statusArray[index] = 'B';
-				}
-				else{
-					new_power = Number(new_power) + Number(powerArray[index]);
-					if (statusArray[index] == 'X') new_statusArray[index] = 'X';
-					else new_statusArray[index] = 'A'; 
-				}
+			// while (index < statusArray.length){
+			while (index <= 1){
+				console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+				console.log("Testing Index  ");
+				console.log(index);
+
+
+				$.get("getCurReading.php", function(data, status){
+	        		cur_power = data;
+	        		document.getElementById("cur_power").innerHTML = cur_power;
+	        		console.log("Fetching current data");
+	        		console.log(cur_power);
+	    		});
+
+				console.log("Changing Index to A")
+				new_statusArray[index] = 'A';
+				var stringed =  new_statusArray.join(',');
+
+				$.ajax({
+				    url: 'updateDatabase.php', // url is empty because I'm working in the same file
+				    data: {
+				    	'new_power': new_power,
+				    	'new_threshold':threshold_power,
+				    	'new_statusArray': stringed
+					},
+				    type: 'post',
+				});
+				console.log("sleeping");
+				sleep(2000);
+				console.log("wokeup");
+				
+				// $.get("getCurReading.php", function(data, status){
+	   //      		cur_power = data;
+	   //      		document.getElementById("cur_power").innerHTML = cur_power;
+	   //      		console.log("Fetching current data")
+	   //      		console.log(cur_power)
+	   //  		});
+
+	   //  		console.log("Now comparing");
+
+				// if (Number(cur_power) > Number(threshold_power)){
+				// 	new_statusArray[index] = 'B';
+				// 	console.log("Should be switched off");
+				// }
+				// else{
+				// 	if (statusArray[index] == 'X') new_statusArray[index] = 'X';
+				// 	else new_statusArray[index] = 'A'; 
+				// 	console.log("Should remain switched on");
+				// }
 				index++;
 			}
-			console.log("**********");
+
+
+			console.log("***********************");
 			console.log(new_statusArray);
 			console.log(new_power);
 			console.log(new_statusArray.join(','));
 
-			var stringed =  new_statusArray.join(',');
-
-			document.getElementById("cur_power").innerHTML = new_power;
-			$.ajax({
-			    url: 'updateDatabase.php', // url is empty because I'm working in the same file
-			    data: {
-			    	'new_power': new_power,
-			    	'new_threshold':threshold_power,
-			    	'new_statusArray': stringed
-				},
-			    type: 'post',
-			});
-
+		
+			
 		};	
 
 		
@@ -128,9 +168,6 @@ if ($result->num_rows > 0) {
 			<li class="enabled">Item 1</li>
 			<li class="enabled">Item 2</li>
 			<li class="enabled">Item 3</li>
-			<li class="disabled">Item 4</li>
-			<li class="disabled">Item 5</li>
-			<li class="disabled">Item 6</li>
 		</ul>
 	</section>
 	<br>
