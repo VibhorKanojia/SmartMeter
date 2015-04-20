@@ -130,27 +130,29 @@ else {
 <body>
 
 	<header>
-		<h1>Embedded Systems Lab</h1>
+		<h1>Smart Meter</h1>
 	</header>
 	<section>
 		<h2>ALL COMPONENTS</h2>
 		<ul class="exclude list" id="componentList">
 			<li id="bulb1" class="enabled">Bulb 1</li>
 			<li id="bulb2" class="enabled">Bulb 2</li>
-			<li id="bulb3" class="enabled">Bulb 3</li>
+			<li id="fan" class="enabled">Fan</li>
+			<!-- <li id="bulb3" class="enabled">Bulb 3</li> -->
+			
 		</ul>
 	</section>
 	<br>
 	<br>
 	<section>
-  			<label for="current">Current Power Reading : </label>
-  			<label id = "cur_power" for="reading"><?php echo $cur_power ?></label>
-  			<br><br>
-  			<label for="threshold">Enter Threshold Value</label>
-  			<br><br>
-  			<input type="text" name="voltage" value="" id="voltage"><br>
-  			<br>
-  			<input type="submit" value="Submit" onclick="optimize()"> 
+		<label for="current">Current Power Reading : </label>
+		<label id = "cur_power" for="reading"><?php echo $cur_power ?></label>
+		<br><br>
+		<label for="threshold">Enter Threshold Value</label>
+		<br><br>
+		<input type="text" name="voltage" value="" id="voltage"><br>
+		<br>
+		<input type="submit" value="Submit" onclick="optimize()"> 
 	</section>
 
 	

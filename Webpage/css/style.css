@@ -1,5 +1,6 @@
-header, section {
+header, section{
 	display: block;
+	text-align: center;
 }
 
 body {
