@@ -28,22 +28,22 @@ if ($result->num_rows > 0) {
 }
 
 
-$sql = "SELECT status, power FROM components order by priority asc";
+// $sql = "SELECT status, power FROM components order by priority asc";
 
-$statusArray = array();
-$powerArray =array();
-$result = $conn->query($sql);
-if ($result->num_rows > 0) {
-    // output data of each row
-    $i = 0;
-    while($row = $result->fetch_assoc()) {
-        $statusArray[$i] = $row["status"];
-        $powerArray[$i] = $row["power"];
-        $i = $i + 1;
-    }
-} else {
-    echo "0 results";
-}
+// $statusArray = array();
+// $powerArray =array();
+// $result = $conn->query($sql);
+// if ($result->num_rows > 0) {
+//     // output data of each row
+//     $i = 0;
+//     while($row = $result->fetch_assoc()) {
+//         $statusArray[$i] = $row["status"];
+//         $powerArray[$i] = $row["power"];
+//         $i = $i + 1;
+//     }
+// } else {
+//     echo "0 results";
+// }
   
 ?> 
 
@@ -59,97 +59,52 @@ if ($result->num_rows > 0) {
 	<script>
 
 	$(document).ready(function(){
-		var intervalID = setInterval(optimize, 60000);
+		var intervalID = setInterval(optimize, 1000);
 
 	});
 
-	function sleep(milliseconds) {
-	  var start = new Date().getTime();
-	  for (var i = 0; i < 1e7; i++) {
-	    if ((new Date().getTime() - start) > milliseconds){
-	      break;
-	    }
-	  }
-	}
+	function getPriority(){
+		var priorityArray = [];
+		$('ul li').each(function(i)
+		{
+		    // This is your rel value
+		    priorityArray.push($(this).attr('id'));
 
-		function optimize(){
-			console.log("start");
-			var cur_power = document.getElementById("cur_power").innerHTML;
-			var threshold_power = document.getElementById("voltage").value;
-			if (Number(threshold_power) == 0){
-				threshold_power = Number(<?php echo $cur_threshold; ?>);
-			}
-			var statusArray = <? echo json_encode($statusArray); ?>;
-			var powerArray = <? echo json_encode($powerArray); ?>;
-			//console.log(powerArray);
+		});
+		return priorityArray;
+		console.log(priorityArray);
+	}	
+
+	
+	
+	function optimize(){
+		priorityArray = getPriority();
+		console.log("start");
+		var cur_power = document.getElementById("cur_power").innerHTML;
+		var threshold_power = document.getElementById("voltage").value;
+		if (Number(threshold_power) == 0){
+			threshold_power = Number(<?php echo $cur_threshold; ?>);
+		}
+
+		$.get("getCurReading.php", function(data, status){
+			cur_power = data;
+			document.getElementById("cur_power").innerHTML = cur_power;
+			console.log("Fetching current data");
 			console.log(cur_power);
-			console.log(threshold_power);
-			console.log(statusArray);
+		});
 
-			var new_power = 0;
-			var index = 0;
-			var new_statusArray = [];
-			// while (index < statusArray.length){
-			while (index <= 1){
-				console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-				console.log("Testing Index  ");
-				console.log(index);
+		var stringed = priorityArray.join(',');
+		console.log(stringed);
+		$.ajax({
+		    url: 'updateDatabase.php', // url is empty because I'm working in the same file
+		    data: {
+		    	'new_threshold':threshold_power,
+		    	'priorityArray':stringed
+			},
+		    type: 'post',
+		});
+	};
 
-
-				$.get("getCurReading.php", function(data, status){
-	        		cur_power = data;
-	        		document.getElementById("cur_power").innerHTML = cur_power;
-	        		console.log("Fetching current data");
-	        		console.log(cur_power);
-	    		});
-
-				console.log("Changing Index to A")
-				new_statusArray[index] = 'A';
-				var stringed =  new_statusArray.join(',');
-
-				$.ajax({
-				    url: 'updateDatabase.php', // url is empty because I'm working in the same file
-				    data: {
-				    	'new_power': new_power,
-				    	'new_threshold':threshold_power,
-				    	'new_statusArray': stringed
-					},
-				    type: 'post',
-				});
-				console.log("sleeping");
-				sleep(2000);
-				console.log("wokeup");
-				
-				// $.get("getCurReading.php", function(data, status){
-	   //      		cur_power = data;
-	   //      		document.getElementById("cur_power").innerHTML = cur_power;
-	   //      		console.log("Fetching current data")
-	   //      		console.log(cur_power)
-	   //  		});
-
-	   //  		console.log("Now comparing");
-
-				// if (Number(cur_power) > Number(threshold_power)){
-				// 	new_statusArray[index] = 'B';
-				// 	console.log("Should be switched off");
-				// }
-				// else{
-				// 	if (statusArray[index] == 'X') new_statusArray[index] = 'X';
-				// 	else new_statusArray[index] = 'A'; 
-				// 	console.log("Should remain switched on");
-				// }
-				index++;
-			}
-
-
-			console.log("***********************");
-			console.log(new_statusArray);
-			console.log(new_power);
-			console.log(new_statusArray.join(','));
-
-		
-			
-		};	
 
 		
 	</script>
@@ -165,9 +120,9 @@ if ($result->num_rows > 0) {
 	<section>
 		<h2>ALL COMPONENTS</h2>
 		<ul class="exclude list" id="componentList">
-			<li class="enabled">Item 1</li>
-			<li class="enabled">Item 2</li>
-			<li class="enabled">Item 3</li>
+			<li id="bulb1" class="enabled">Bulb 1</li>
+			<li id="bulb2" class="enabled">Bulb 2</li>
+			<li id="bulb3" class="enabled">Bulb 3</li>
 		</ul>
 	</section>
 	<br>
