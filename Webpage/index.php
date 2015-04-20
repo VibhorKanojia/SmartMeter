@@ -28,22 +28,22 @@ if ($result->num_rows > 0) {
 }
 
 
-// $sql = "SELECT status, power FROM components order by priority asc";
 
-// $statusArray = array();
-// $powerArray =array();
-// $result = $conn->query($sql);
-// if ($result->num_rows > 0) {
-//     // output data of each row
-//     $i = 0;
-//     while($row = $result->fetch_assoc()) {
-//         $statusArray[$i] = $row["status"];
-//         $powerArray[$i] = $row["power"];
-//         $i = $i + 1;
-//     }
-// } else {
-//     echo "0 results";
-// }
+
+$sql = "SELECT status FROM components order by priority asc";
+
+$statusArray = array();
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    $i = 0;
+    while($row = $result->fetch_assoc()) {
+        $statusArray[$i] = $row["status"];
+        $i = $i + 1;
+    }
+}
+else {
+     echo "0 results";
+}
   
 ?> 
 
@@ -60,7 +60,6 @@ if ($result->num_rows > 0) {
 
 	$(document).ready(function(){
 		var intervalID = setInterval(optimize, 1000);
-
 	});
 
 	function getPriority(){
@@ -78,6 +77,22 @@ if ($result->num_rows > 0) {
 	
 	
 	function optimize(){
+		var statusArray = <?php echo '["' . implode('", "', $statusArray) . '"]' ?>;
+		console.log(statusArray);
+		var count = 0;
+		/*
+		$('ul li').each(function(i)
+		{
+			if (statusArray[count] == 'A'){
+		    	$(this).css("background","#000");
+		    }
+		    else{
+		    	$(this).css("background","#555");	
+		    }
+		
+		    count++;
+		});
+		*/
 		priorityArray = getPriority();
 		console.log("start");
 		var cur_power = document.getElementById("cur_power").innerHTML;
