@@ -1,4 +1,6 @@
 <?php
+
+
 $servername = "127.0.0.1";
 $username = "vibhor";
 $password = "vibhor";
@@ -13,18 +15,22 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT * FROM power_log";
-$result = $conn->query($sql);
 
+$sql = "SELECT status FROM components order by priority asc";
+
+$statusArray="";
+$result = $conn->query($sql);
 if ($result->num_rows > 0) {
-    // output data of each row
+    $i = 0;
     while($row = $result->fetch_assoc()) {
-        $cur_power = $row["power"];
-        $cur_threshold = $row["threshold"];
+        $statusArray = $statusArray.$row["status"].",";
+        $i = $i + 1;
     }
-} else {
-    echo "ts";
+    echo $statusArray;
 }
-echo $cur_power;
+else {
+     echo "0 results";
+}
+
 $conn->close();
 ?>

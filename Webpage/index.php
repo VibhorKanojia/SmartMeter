@@ -77,22 +77,30 @@ else {
 	
 	
 	function optimize(){
-		var statusArray = <?php echo '["' . implode('", "', $statusArray) . '"]' ?>;
-		console.log(statusArray);
+		var statusArray = [];
 		var count = 0;
-		/*
-		$('ul li').each(function(i)
-		{
-			if (statusArray[count] == 'A'){
-		    	$(this).css("background","#000");
-		    }
-		    else{
-		    	$(this).css("background","#555");	
-		    }
-		
-		    count++;
+
+		$.get("getArray.php", function(data, status){
+		       // console.log("status array is " + data);
+		        statusArray = data.split(',');
+		       // console.log(statusArray);
+		        $('#componentList li').each(function()
+		        {
+		        //    console.log("count is " + count);
+		        //    console.log(statusArray);
+		            if (statusArray[count] == "A"){
+		            		$(this).css("background","#42DEF1");
+		           	}
+		            else{
+		            	$(this).css("background","#4282F1");	
+		            }
+		            count+=1;
+		        });
+		        
 		});
-		*/
+
+	
+
 		priorityArray = getPriority();
 		console.log("start");
 		var cur_power = document.getElementById("cur_power").innerHTML;
